@@ -1,11 +1,89 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>マイサイト</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ナンバーズ4 AI予想</title>
+<style>
+body{margin:0;font-family:-apple-system;background:#f2f2f7;}
+.container{max-width:420px;margin:auto;background:#fff;min-height:100vh;}
+.header{padding:15px;text-align:center;font-weight:bold;font-size:20px;border-bottom:1px solid #ddd;}
+.section{padding:15px;border-bottom:1px solid #eee;}
+.button{background:#007aff;color:#fff;padding:12px;border-radius:10px;text-align:center;margin-top:10px;cursor:pointer;}
+.card{background:#f9f9f9;padding:10px;border-radius:10px;margin-top:10px;}
+.big{font-size:22px;font-weight:bold;color:#007aff;}
+.small{font-size:12px;color:#666;}
+</style>
 </head>
 <body>
-  <h1>はじめてのホームページ</h1>
-  <p>ここに内容を書いていきます</p>
+<div class="container">
+<div class="header">ナンバーズ4 AI予想</div>
+<div class="section">
+<label>直近回数</label>
+<input type="number" id="limit" value="50" style="width:100%;padding:10px;">
+<div class="button" onclick="analyze()">AI分析スタート</div>
+</div>
+<div class="section">
+<div>予想（AI強化）</div>
+<div id="result"></div>
+</div>
+</div>
+<script>
+const data = [
+"9577","3851","9781","1234","5678","9012","3456","7890","1123","4589",
+"6701","2749","0831","1947","2208","7305","4186","9024","1593","6241"
+];
+
+function analyze(){
+let limit = parseInt(document.getElementById("limit").value);
+let rows = data.slice(-limit);
+
+let counts = Array.from({length:4},()=>Array(10).fill(0));
+let lastSeen = Array.from({length:4},()=>Array(10).fill(999));
+
+rows.forEach((num,idx)=>{
+num.split('').forEach((d,i)=>{
+counts[i][d]++;
+lastSeen[i][d]=rows.length-idx;
+});
+});
+
+let scoreList=[];
+
+for(let i=0;i<10;i++){
+for(let j=0;j<10;j++){
+for(let k=0;k<10;k++){
+for(let l=0;l<10;l++){
+
+let score = 1;
+
+let arr=[i,j,k,l];
+
+arr.forEach((d,pos)=>{
+score *= (counts[pos][d]+1);
+score *= (lastSeen[pos][d]/100);
+});
+
+let sum = i+j+k+l;
+if(sum<10 || sum>25) score*=0.9;
+
+let even = arr.filter(x=>x%2==0).length;
+if(even==0||even==4) score*=0.8;
+
+scoreList.push({num:`${i}${j}${k}${l}`,score});
+
+}}}}
+
+scoreList.sort((a,b)=>b.score-a.score);
+
+let html="";
+for(let i=0;i<5;i++){
+html+=`<div class="card"><div class="big">${scoreList[i].num}</div><div class="small">${scoreList[i].score.toFixed(2)}</div></div>`;
+}
+
+document.getElementById("result").innerHTML=html;
+}
+</script>
 </body>
 </html>
+:::
